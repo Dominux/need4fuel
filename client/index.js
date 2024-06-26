@@ -1,18 +1,21 @@
-const velocity = 3
-const angle = Math.PI / 320
+const velocity = 2
+const angle = Math.PI / 360
 
 class Car {
-  constructor(x, y, sprite) {
-    this.x = x
-    this.y = y
+  constructor(x, y, sprite, texture) {
+    this.carCenterX = x
+    this.carCenterY = y
+    this.carX = this.carCenterX - sprite.width / 2
+    this.carY = this.carCenterY - sprite.height / 2
+
+    this.x = this.carCenterX - texture.width / 2
+    this.y = this.carCenterY - texture.height / 2
+
     this.isMovingForward = false
+    this.rotation = 0
     this.rotate
     this.sprite = sprite
-
-    this.leftWheelX = sprite.width / 6
-    this.rightWheelX = (sprite.width / 6) * 5
-
-    this.rotationCenterY = sprite.height / 6
+    this.texture = texture
   }
 
   /**
@@ -20,20 +23,23 @@ class Car {
    * @param {WebGL2RenderingContext} ctx
    */
   draw(ctx) {
-    if (this.isMovingForward) this.y -= velocity
+    if (this.isMovingForward) {
+      if (this.rotate && this.rotate !== 'both') {
+        this.rotation += this.rotate === 'right' ? angle : -angle
+      }
 
-    ctx.drawImage(this.sprite, this.x, this.y)
+      this.x -= velocity * Math.cos(this.rotation)
+      this.y -= velocity * Math.sin(this.rotation)
+    }
 
-    if (!this.rotate || this.rotate === 'both') return
+    ctx.drawImage(this.texture, this.x, this.y)
 
-    const rotationCenterX =
-      this.x + (this.rotate === 'left' ? this.leftWheelX : this.rightWheelX)
-    const rotationCenterY = this.y + this.rotationCenterY
-    const _angle = this.rotate == 'left' ? -angle : angle
-
-    ctx.translate(rotationCenterX, rotationCenterY)
-    ctx.rotate(_angle)
-    ctx.translate(-rotationCenterX, -rotationCenterY)
+    ctx.save()
+    ctx.translate(this.carCenterX, this.carCenterY)
+    ctx.rotate(this.rotation)
+    ctx.translate(-this.carCenterX, -this.carCenterY)
+    ctx.drawImage(this.sprite, this.carX, this.carY)
+    ctx.restore()
   }
 
   moveForward() {
@@ -72,6 +78,7 @@ class Car {
 window.onload = () => {
   const canvas = document.getElementById('canvas')
   const sprite = document.getElementById('monster-truck')
+  const texture = document.getElementById('canvas-texture')
 
   canvas.width = window.innerWidth * window.devicePixelRatio
   canvas.height = window.innerHeight * window.devicePixelRatio
@@ -80,9 +87,8 @@ window.onload = () => {
   const y = canvas.height / 2
 
   const ctx = canvas.getContext('2d')
-  ctx.fillStyle = 'red'
 
-  const car = new Car(x, y, sprite)
+  const car = new Car(x, y, sprite, texture)
 
   const draw = (timestamp) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
