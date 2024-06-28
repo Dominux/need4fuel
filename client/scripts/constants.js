@@ -1,2 +1,2 @@
-export const VELOCITY = 2
-export const ANGLE = Math.PI / 360
+export const VELOCITY = 3
+export const MOVING_INTERVAL = 10

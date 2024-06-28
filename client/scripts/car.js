@@ -1,20 +1,28 @@
-import { VELOCITY, ANGLE } from './constants.js'
+import { MOVING_INTERVAL, VELOCITY } from './constants.js'
 
 export class Car {
   constructor(x, y, sprite, texture) {
+    // car center
     this.carCenterX = x
     this.carCenterY = y
+
+    // car up-left corner
     this.carX = this.carCenterX - sprite.width / 2
     this.carY = this.carCenterY - sprite.height / 2
 
+    // playground up-left corner
     this.x = this.carCenterX - texture.width / 2
     this.y = this.carCenterY - texture.height / 2
 
-    this.isMovingForward = false
-    this.rotation = 0
-    this.rotate
+    // direction angle
+    this.directionAngle = 0
+
+    // sprites to draw
     this.sprite = sprite
     this.texture = texture
+
+    // moving algo
+    setInterval(() => this.move(), MOVING_INTERVAL)
   }
 
   /**
@@ -22,54 +30,27 @@ export class Car {
    * @param {WebGL2RenderingContext} ctx
    */
   draw(ctx) {
-    if (this.isMovingForward) {
-      if (this.rotate && this.rotate !== 'both') {
-        this.rotation += this.rotate === 'right' ? ANGLE : -ANGLE
-      }
-
-      this.x -= VELOCITY * Math.cos(this.rotation)
-      this.y -= VELOCITY * Math.sin(this.rotation)
-    }
-
     ctx.drawImage(this.texture, this.x, this.y)
 
     ctx.save()
     ctx.translate(this.carCenterX, this.carCenterY)
-    ctx.rotate(this.rotation)
+    ctx.rotate(this.directionAngle)
     ctx.translate(-this.carCenterX, -this.carCenterY)
     ctx.drawImage(this.sprite, this.carX, this.carY)
     ctx.restore()
   }
 
-  moveForward() {
-    this.isMovingForward = true
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   */
+  setMovingDirection(x, y) {
+    this.directionAngle = Math.atan2(y - this.carY, x - this.carX)
   }
 
-  rotateRight() {
-    this.rotate = this.rotate === 'left' ? 'both' : 'right'
-  }
-
-  rotateLeft() {
-    this.rotate = this.rotate === 'right' ? 'both' : 'left'
-  }
-
-  stopMovingForward() {
-    this.isMovingForward = false
-  }
-
-  stopRotatingRight() {
-    if (this.rotate === 'right') {
-      this.rotate = null
-    } else if (this.rotate === 'both') {
-      this.rotate = 'left'
-    }
-  }
-
-  stopRotatingLeft() {
-    if (this.rotate === 'left') {
-      this.rotate = null
-    } else if (this.rotate === 'both') {
-      this.rotate = 'right'
-    }
+  move() {
+    this.x -= VELOCITY * Math.cos(this.directionAngle)
+    this.y -= VELOCITY * Math.sin(this.directionAngle)
   }
 }

@@ -23,29 +23,7 @@ window.onload = () => {
 
   draw()
 
-  document.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'w':
-        car.moveForward()
-        break
-      case 'a':
-        car.rotateLeft()
-        break
-      case 'd':
-        car.rotateRight()
-    }
-  })
-
-  document.addEventListener('keyup', (e) => {
-    switch (e.key) {
-      case 'w':
-        car.stopMovingForward()
-        break
-      case 'a':
-        car.stopRotatingLeft()
-        break
-      case 'd':
-        car.stopRotatingRight()
-    }
+  document.addEventListener('mousemove', (e) => {
+    car.setMovingDirection(e.offsetX, e.offsetY)
   })
 }
