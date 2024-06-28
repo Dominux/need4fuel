@@ -1,7 +1,6 @@
-const velocity = 2
-const angle = Math.PI / 360
+import { VELOCITY, ANGLE } from './constants.js'
 
-class Car {
+export class Car {
   constructor(x, y, sprite, texture) {
     this.carCenterX = x
     this.carCenterY = y
@@ -25,11 +24,11 @@ class Car {
   draw(ctx) {
     if (this.isMovingForward) {
       if (this.rotate && this.rotate !== 'both') {
-        this.rotation += this.rotate === 'right' ? angle : -angle
+        this.rotation += this.rotate === 'right' ? ANGLE : -ANGLE
       }
 
-      this.x -= velocity * Math.cos(this.rotation)
-      this.y -= velocity * Math.sin(this.rotation)
+      this.x -= VELOCITY * Math.cos(this.rotation)
+      this.y -= VELOCITY * Math.sin(this.rotation)
     }
 
     ctx.drawImage(this.texture, this.x, this.y)
@@ -73,54 +72,4 @@ class Car {
       this.rotate = 'right'
     }
   }
-}
-
-window.onload = () => {
-  const canvas = document.getElementById('canvas')
-  const sprite = document.getElementById('monster-truck')
-  const texture = document.getElementById('canvas-texture')
-
-  canvas.width = window.innerWidth * window.devicePixelRatio
-  canvas.height = window.innerHeight * window.devicePixelRatio
-
-  const x = canvas.width / 2
-  const y = canvas.height / 2
-
-  const ctx = canvas.getContext('2d')
-
-  const car = new Car(x, y, sprite, texture)
-
-  const draw = (timestamp) => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    car.draw(ctx)
-    window.requestAnimationFrame(draw)
-  }
-
-  draw()
-
-  document.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'w':
-        car.moveForward()
-        break
-      case 'a':
-        car.rotateLeft()
-        break
-      case 'd':
-        car.rotateRight()
-    }
-  })
-
-  document.addEventListener('keyup', (e) => {
-    switch (e.key) {
-      case 'w':
-        car.stopMovingForward()
-        break
-      case 'a':
-        car.stopRotatingLeft()
-        break
-      case 'd':
-        car.stopRotatingRight()
-    }
-  })
 }
